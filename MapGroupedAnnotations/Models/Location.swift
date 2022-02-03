@@ -13,7 +13,8 @@ struct Location: Identifiable, Equatable {
     let description: String
     let coordinates: CLLocationCoordinate2D
     
-    var annotationsToCluster = [Location]()
+    var isChosenForClustering = false
+    var annotationsToCluster: [Location] = []
     
     // Identifiable
     let id = UUID().uuidString

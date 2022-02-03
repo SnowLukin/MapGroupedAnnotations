@@ -50,23 +50,30 @@ extension LocationsViewModel {
         
         for locationIndex in 0..<locations.count {
             locations[locationIndex].annotationsToCluster.removeAll()
+            locations[locationIndex].isChosenForClustering = false
         }
         
         for locationIndex in 0..<locations.count - 1 {
-            for nextLocationIndex in locationIndex..<locations.count {
+            
+            if locations[locationIndex].isChosenForClustering {
+                break
+            }
+            
+            for nextLocationIndex in locationIndex + 1..<locations.count {
                 if abs(locations[nextLocationIndex].coordinates.latitude - locations[locationIndex].coordinates.latitude) * 10 <= zoom &&
                     abs(locations[nextLocationIndex].coordinates.longitude - locations[locationIndex].coordinates.longitude) * 10 <= zoom {
                     
-                    locations[locationIndex].annotationsToCluster.append(locations[nextLocationIndex])
-                    locations[nextLocationIndex].annotationsToCluster.append(locations[locationIndex])
+                    if !locations[nextLocationIndex].isChosenForClustering {
+                        locations[nextLocationIndex].isChosenForClustering = true
+                        locations[locationIndex].annotationsToCluster.append(locations[nextLocationIndex])
+                        locations[nextLocationIndex].annotationsToCluster.append(locations[locationIndex])
+                    }
                 }
             }
-            print(locations[locationIndex].annotationsToCluster)
         }
         
         filteredLocations.removeAll()
         clusterAnnotations(locations: locations, resultArray: &filteredLocations)
-//        print(filteredLocations)
     }
     
     private func clusterAnnotations(locations: [Location], resultArray: inout [Location]) {
@@ -78,7 +85,7 @@ extension LocationsViewModel {
         var locations = locations
         
         // First location
-        let location = locations[0]
+        guard let location = locations.first else { return }
         
         // First's location coordinates
         var coordinates = CLLocationCoordinate2D(latitude: location.coordinates.latitude, longitude: location.coordinates.longitude)
@@ -95,7 +102,6 @@ extension LocationsViewModel {
         let newLocation = Location(name: "", description: "", coordinates: coordinates)
         
         resultArray.append(newLocation)
-//        print("Clustering \(location.annotationsToCluster)")
         locations.remove(at: 0)
         locations.removeAll(where: { location.annotationsToCluster.contains($0) })
         return clusterAnnotations(locations: locations, resultArray: &resultArray)
