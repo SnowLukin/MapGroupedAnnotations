@@ -14,6 +14,7 @@ struct Location: Identifiable, Equatable {
     let coordinates: CLLocationCoordinate2D
     
     var isChosenForClustering = false
+    // Array of annotations for cluster
     var annotationsToCluster: [Location] = []
     
     // Identifiable
